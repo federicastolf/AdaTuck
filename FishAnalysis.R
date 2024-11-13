@@ -5,17 +5,17 @@ library(gridExtra)
 
 rm(list = ls())
 
-source("Rfuncts/AdaTuckProbit.R")
+source("Rfuncts/AdaTuckgibbs.R")
 load("data/FishNorthSea.Rdata")
 
 N_sampl = 20000
 burnin = 10000
-param = list(a_theta = 2, b_theta=2, theta_inf = c(0.05,0.05, 0.05), 
+param = list(a_theta = 2, b_theta=2, theta_inf = rep(0.05, 3), 
              alpha = rep(3, 3), start_adapt = 400, c0_adapt = -1,
-             c1_adapt = -5*10^(-4), a_tau = 2, b_tau = 1, a_rho = 2, b_rho = 2)
+             c1_adapt = -5*10^(-4), a_tau = 2, b_tau = 2, a_rho = 5, b_rho = 5)
 mseed = 1782
 
-FishTuck = ProbitAdaTuck(yFish, mseed, N_sampl, param)
+FishTuck = AdaTuck(yFish, mseed, N_sampl, param, binary=T)
 
 ## remove burnin
 idx = seq(burnin, N_sampl, by=5)
@@ -25,11 +25,8 @@ species_lab = row.names(yFish)
 years_lab = colnames(yFish)
 site_lab = dimnames(yFish)[[3]]
 
-###------------------------### median of multi-rank ###----------------------###
-R1star = median(FishTuck$Rstar[1,idx])
-R2star = median(FishTuck$Rstar[2,idx])
-R3star = median(FishTuck$Rstar[3,idx])
-c(R1star, R2star, R3star)
+#---------# median of multi-rank #---------------#
+apply(FishTuck$Rstar[,idx],1,median)
 
 ###------------### posterior marginal probabilities ###----------------------###
 pi_rc = matrix(NA, length(idx), length(yFish))
@@ -145,19 +142,22 @@ colnames(annotation_row)[1] = "Biogeography"
 rownames(annotation_row) =  dpim6$Species
 lbpi = c("0","0.1","","","","0.5","","","","0.9","1")
 rownames(dpim6) = dpim6$Species
+
 pheat6 = pheatmap(dpim6[,1:31], treeheight_row = 0, treeheight_col = 0, cluster_rows = F,
-               cluster_cols = F, color=colorRampPalette(c("lightblue1", "navyblue"))(100),
-               border_color ="NA", legend=T, show_colnames = T, 
-               labels_col = lab_col, fontsize_row = 9.6, fontsize_col = 15,
-               annotation_row = annotation_row, annotation_names_row = F, annotation_legend = F,
-               legend_breaks = seq(0, 1, 0.1), legend_labels = lbpi)
-pheat1 = pheatmap(dpim1[,1:31], treeheight_row = 0, treeheight_col = 0, cluster_rows = F,
-                  cluster_cols = F, color=colorRampPalette(c("lightblue1", "navyblue"))(100),
-                  border_color ="NA", legend=T, show_colnames = T, 
+                  cluster_cols = F, border_color ="NA", legend=T, show_colnames = T, 
+                  color = colorRampPalette(c("lightblue1", "navyblue"))(100),
                   labels_col = lab_col, fontsize_row = 9.6, fontsize_col = 15,
-                  annotation_row = annotation_row, annotation_names_row = F, annotation_legend = F,
-                  legend_breaks = seq(0, 1, 0.1), legend_labels = lbpi)
+                  annotation_row = annotation_row, annotation_names_row = F, 
+                  annotation_legend = F, legend_breaks = seq(0,1,0.1), legend_labels = lbpi)
+
+pheat1 = pheatmap(dpim1[,1:31], treeheight_row = 0, treeheight_col = 0, cluster_rows = F,
+                   color=colorRampPalette(c("lightblue1", "navyblue"))(100),
+                  border_color ="NA", legend=T, show_colnames = T, cluster_cols = F,
+                  labels_col = lab_col, fontsize_row = 9.6, fontsize_col = 15,
+                  annotation_row = annotation_row, annotation_names_row = F, 
+                  annotation_legend = F, legend_breaks = seq(0,1,0.1), legend_labels = lbpi)
 
 map_all = grid.arrange(grobs = list(pheat1[[4]], pheat6[[4]]))
 # ggsave(plot = map_all, filename = "pheat.png",  width = 17, height = 15)
+
 

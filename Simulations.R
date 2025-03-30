@@ -59,15 +59,6 @@ MSEBF5miss3 = parallel::mclapply(1:Nsim, TensorBF_paralleltc, mc.cores = 20,
 MSEBF5miss5 = parallel::mclapply(1:Nsim, TensorBF_paralleltc, mc.cores = 20,
                                  all_data = all_data50, opts = opts)
 
-# MSEv5miss3 = rep(0,length(MSEBF10miss3))
-# for(i in 1:length(MSEv5miss3)){
-#   MSEv5miss3[i] = MSEBF10miss3[[i]]$b
-# }
-# MSEv5miss5 = rep(0,length(MSEBF10miss5))
-# for(i in 1:length(MSEv5miss5)){
-#   MSEv5miss5[i] = MSEBF10miss5[[i]]$b
-# }
-
 #------------------------------# scenario 2 #--------------------------------#
 Y_dim = c(50, 40, 6) #n1, n2, n3
 core_dim = c(10, 7 ,3) # R1, R2, R3

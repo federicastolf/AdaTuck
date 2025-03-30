@@ -7,13 +7,7 @@ library(EBImage)
 source("Rfuncts/AdaTuckgibbs.R")
 source("Rfuncts/funcAdaTuck.R")
 
-# load("image/RHfit.Rdata")
-
-# im = readImage("image/little_john_Small.jpeg")
-im = readImage("image/RH_Little.jpg")
-display(im)
-imData = imageData(im)
-
+load("data/imageData.Rdata")
 
 ##-------------------------## missing data 50% ##-----------------------------##
 mseed = 345
@@ -29,13 +23,9 @@ param = list(a_eta = 1, b_eta = 0.3, a_theta = 2, b_theta=2,
              start_adapt = 100, c0_adapt = -1, c1_adapt = -5*10^(-4),
              a_tau = 2, b_tau = 2, a_rho = 10, b_rho = 10)
 N_sampl = 12000
-#N_sampl = 2
-# fitIm50 = AdaTuck(yNA50, mseed, N_sampl, param, Rinit = c(30, 35, 3))
+fitIm50 = AdaTuck(yNA50, mseed, N_sampl, param, Rinit = c(30, 35, 3))
 
 burn_in = seq(8000+1, N_sampl)
-apply(fitIm50$Rstar[,burn_in],1,median)
-
-
 MSEIm50 = array(0, length(burn_in))
 Yrec50 = matrix(NA, length(burn_in), length(idx_na50))
 for(i in 1:length(burn_in)){
@@ -44,7 +34,6 @@ for(i in 1:length(burn_in)){
   MSEIm50[i] = mean((Y_rc[idx_na50] - imData[idx_na50])^2)
   Yrec50[i,] = Y_rc[idx_na50]
 }
-summary(MSEIm50)
 
 #---------# image reconstruction #---------#
 Yrec50mean = apply(Yrec50,2,mean)
@@ -85,10 +74,7 @@ yNA70[idx_na70] = NA
 
 #-----# AdaTuck #-----#
 
-# fitIm70 = AdaTuck(yNA70, mseed, N_sampl, param, Rinit = c(30, 35, 3))
-
-apply(fitIm70$Rstar[,burn_in],1,median)
-
+fitIm70 = AdaTuck(yNA70, mseed, N_sampl, param, Rinit = c(30, 35, 3))
 
 MSEIm70 = array(0, length(burn_in))
 Yrec70 = matrix(NA, length(burn_in), length(idx_na70))

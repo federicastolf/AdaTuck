@@ -9,6 +9,10 @@ source("Rfuncts/funcAdaTuck.R")
 
 load("data/imageData.Rdata")
 
+IMCat = as.Image(imData)
+colorMode(IMCat)=2
+display(IMCat, method="raster")
+
 ##-------------------------## missing data 50% ##-----------------------------##
 mseed = 345
 missY = 0.5
